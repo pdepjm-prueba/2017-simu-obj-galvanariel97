@@ -5,13 +5,14 @@ class Empleado
 	var rol
 	method fuerza()
 	{
-		return estamina/2 + 2 + rol.plusFuerza(self)
+		return (estamina/2 + 2 + rol.plusRol(self)) / self.plusClase()
 	}
 	method setEstamina(sumar){}
 	method estamina()
 	{
 		return estamina
 	}
+	method perderMitadEstamina(valor){estamina = estamina/2}
 	method comerFruta(unaFruta)
 	{
 		estamina = estamina + unaFruta.puntos()
@@ -31,6 +32,13 @@ class Empleado
 	{
 		estamina = estamina - unaMaquina.complejidad()
 	}
+	method experencia()
+	{
+		
+	}
+	method plusClase(){return 1}
+	method puedeDefenderSector(){rol.puedeDefenderSector()}
+	method noEsSoldado(){return rol.noEsSoldado()}
 }
 class Fruta
 {
@@ -50,10 +58,12 @@ object uva inherits Fruta(1){}
 
 class Biclopes inherits Empleado
 {
+	
 	override method setEstamina(sumar)
 	{
 		estamina = (estamina + sumar).max(10)
 	}
+	method dificultadRaza(){return 1}
 }
 class Ciclope inherits Empleado
 {
@@ -65,6 +75,11 @@ class Ciclope inherits Empleado
 	{
 		estamina = estamina + sumar
 	}
+	override method plusClase()
+	{
+		return 2
+	}
+	method dificultadRaza(){return 2}
 }
 
 class Soldado 
@@ -74,14 +89,28 @@ class Soldado
 	method defenderSector()
 	{
 	}
-	method plusFuerza(unEmpleado)
+	method plusRol(unEmpleado)
 	{
 		return practica
 	}
+	method puedeDefenderSector()
+	{
+		return true
+	}
+	method noEsSoldado(){return false}
 }
 class Obrero
 {
 	var herramientas = #{}
+	method plusRol(unEmpleado)
+	{
+		return 0
+	}
+	method puedeDefenderSector()
+	{
+		return true
+	}
+	method noEsSoldado(){return true}
 }
 class Mucama
 {
@@ -89,9 +118,18 @@ class Mucama
 	{
 		return false
 	}
+	method plusRol(unEmpleado)
+	{
+		return 0
+	}
+	method puedeDefenderSector()
+	{
+		return false
+	}
+	method noEsSoldado(){return true}
 }
 
-object maquina
+class ArreglarMaquina
 {
 	var complejidad
 	var herramientasRequeridas = #{}
@@ -122,13 +160,32 @@ object maquina
 	{
 		return empleado.estamina() == complejidad
 	}
+	method dificultad(empleado)
+	{
+		return 2 * complejidad
+	}
 }
-object defenderSector
+class DefenderSector
 {
-	
+	var amenaza
+	method realizarTarea(empleado)
+	{
+		if(empleado.puedeDefenderSector() && empleado.fuerza() > amenaza)
+		{
+			if(empleado.noEsSoldado())
+			{
+				empleado.restarMitadEstamina()
+			}
+		}
+	}
+	method dificultad(empleado)
+	{
+		return amenaza * empleado.dificultadRaza()
+	}
 }
 class Tarea
 {
-	var dificultad
 	var tarea
+	var empleado
+	
 }
